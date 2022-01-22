@@ -23,6 +23,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import be.seeseemelk.mockbukkit.plugin.messaging.StandardMessengerMock;
 import org.apache.commons.lang.Validate;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
@@ -69,6 +70,7 @@ import org.bukkit.loot.LootTable;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.Messenger;
+import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.structure.StructureManager;
 import org.bukkit.util.CachedServerIcon;
@@ -131,6 +133,7 @@ public class ServerMock extends Server.Spigot implements Server
 	private final MockPlayerList playerList = new MockPlayerList();
 	private final MockCommandMap commandMap = new MockCommandMap(this);
 	private final HelpMapMock helpMap = new HelpMapMock();
+	private final StandardMessengerMock standardMessenger = new StandardMessengerMock();
 
 	private GameMode defaultGameMode = GameMode.SURVIVAL;
 	private ConsoleCommandSender consoleSender;
@@ -847,8 +850,11 @@ public class ServerMock extends Server.Spigot implements Server
 	@Override
 	public void sendPluginMessage(Plugin source, String channel, byte[] message)
 	{
-		// TODO Auto-generated method stub
-		throw new UnimplementedOperationException();
+		StandardMessenger.validatePluginMessage(getMessenger(), source, channel, message);
+
+		for (PlayerMock playerMock : getOnlinePlayers()) {
+			playerMock.sendPluginMessage(source, channel, message);
+		}
 	}
 
 	@Override
@@ -1163,8 +1169,7 @@ public class ServerMock extends Server.Spigot implements Server
 	@Override
 	public Messenger getMessenger()
 	{
-		// TODO Auto-generated method stub
-		throw new UnimplementedOperationException();
+		return standardMessenger;
 	}
 
 	@Override
